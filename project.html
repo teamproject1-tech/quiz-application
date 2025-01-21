@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz App</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+      }
+
+      .homepage {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+          url("./background.jpg");
+
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+
+        color: white;
+      }
+
+      .homepage h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      .homepage input {
+        margin: 10px 0;
+        padding: 10px;
+        font-size: 1rem;
+        border: none;
+        border-radius: 5px;
+        width: 80%;
+      }
+
+      .homepage button {
+        background-color: #ff6f61;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        font-size: 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: transform 0.3s, background-color 0.3s;
+      }
+
+      .homepage button:hover {
+        transform: scale(1.1);
+        background-color: #ff3e2e;
+      }
+      .quiz-container {
+        display: none;
+        width: 100%;
+        height: 100vh;
+        justify-content: space-between;
+        align-items: baseline;
+        background: linear-gradient(135deg, #ffecd2, #fcb69f);
+      }
+      .quiz {
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 40px;
+        margin: auto;
+
+        color: #333;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+        width: 80%;
+        max-width: 600px;
+      }
+
+      .left-sidebar {
+        width: 50%;
+      }
+
+      .quiz-header ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      .quiz-header ul li {
+        font-size: 1.2rem;
+        margin: 1rem 0;
+      }
+
+      .quiz-header ul li label {
+        cursor: pointer;
+      }
+
+      button {
+        background-color: #8e44ad;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        font-size: 1.1rem;
+        padding: 12px 30px;
+        border-radius: 5px;
+        margin-top: 20px;
+      }
+
+      button:hover {
+        background-color: #732d91;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Homepage -->
+    <div class="homepage" id="homepage">
+      <h1>Welcome to the Quiz App</h1>
+      <p>Enter your credentials to start the quiz.</p>
+      <input type="text" id="username" placeholder="Enter Username" />
+      <input type="password" id="password" placeholder="Enter Password" />
+      <button id="loginBtn">Login</button>
+    </div>
+
+    <!-- Quiz Section -->
+    <div id="quiz-container" class="quiz-container">
+      <div class="quiz" id="quiz">
+        <div class="quiz-header">
+          <h2 id="question">Question text</h2>
+          <ul>
+            <li>
+              <input type="radio" name="answer" id="a" class="answer" />
+              <label for="a" id="a_text">Option A</label>
+            </li>
+            <li>
+              <input type="radio" name="answer" id="b" class="answer" />
+              <label for="b" id="b_text">Option B</label>
+            </li>
+            <li>
+              <input type="radio" name="answer" id="c" class="answer" />
+              <label for="c" id="c_text">Option C</label>
+            </li>
+            <li>
+              <input type="radio" name="answer" id="d" class="answer" />
+              <label for="d" id="d_text">Option D</label>
+            </li>
+          </ul>
+        </div>
+        <button id="submit">Next</button>
+      </div>
+      <img class="left-sidebar" src="./back-element.png" alt="" />
+    </div>
+
+    <script>
+      const validUsername = "admin";
+      const validPassword = "1234";
+
+      const homepage = document.getElementById("homepage");
+      const quiz = document.getElementById("quiz");
+      const quizContainer = document.getElementById("quiz-container");
+      const loginBtn = document.getElementById("loginBtn");
+
+      const quizData = [
+        {
+          question: "What does the <em>id</em> attribute in HTML do?",
+          a: "Specifies a unique identifier for an element",
+          b: "Defines the style of an element",
+          c: "Creates a hyperlink to another page",
+          d: "Marks an element as deprecated",
+          correct: "a",
+        },
+        {
+          question:
+            "Which property is used in CSS to change the background color?",
+          a: "background-style",
+          b: "background-color",
+          c: "color",
+          d: "bgcolor",
+          correct: "b",
+        },
+        {
+          question: "What does the 'DOM' stand for in JavaScript?",
+          a: "Document Object Model",
+          b: "Data Output Manager",
+          c: "Document Output Module",
+          d: "Data Object Mapping",
+          correct: "a",
+        },
+      ];
+
+      let currentQuiz = 0;
+      let score = 0;
+
+      loginBtn.addEventListener("click", () => {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        if (username === validUsername && password === validPassword) {
+          homepage.style.display = "none";
+          quizContainer.style.display = "flex";
+          loadQuiz();
+        } else {
+          alert("Invalid username or password. Try again.");
+        }
+      });
+
+      const questionEl = document.getElementById("question");
+      const answerEls = document.querySelectorAll(".answer");
+      const a_text = document.getElementById("a_text");
+      const b_text = document.getElementById("b_text");
+      const c_text = document.getElementById("c_text");
+      const d_text = document.getElementById("d_text");
+      const submitBtn = document.getElementById("submit");
+
+      function loadQuiz() {
+        deselectAnswers();
+
+        const currentQuizData = quizData[currentQuiz];
+        questionEl.innerHTML = currentQuizData.question;
+        a_text.innerText = currentQuizData.a;
+        b_text.innerText = currentQuizData.b;
+        c_text.innerText = currentQuizData.c;
+        d_text.innerText = currentQuizData.d;
+        if (quizData.length - currentQuiz == 1) {
+          submitBtn.innerHTML = "Submit";
+        }
+      }
+
+      function deselectAnswers() {
+        answerEls.forEach((answerEl) => (answerEl.checked = false));
+      }
+
+      function getSelected() {
+        let answer;
+
+        answerEls.forEach((answerEl) => {
+          if (answerEl.checked) {
+            answer = answerEl.id;
+          }
+        });
+
+        return answer;
+      }
+
+      submitBtn.addEventListener("click", () => {
+        const answer = getSelected();
+
+        if (answer) {
+          if (answer === quizData[currentQuiz].correct) {
+            score++;
+          }
+
+          currentQuiz++;
+
+          if (currentQuiz < quizData.length) {
+            loadQuiz();
+          } else {
+            quiz.innerHTML = `
+                        <h2>You answered ${score}/${quizData.length} questions correctly!</h2>
+                        <button onclick="location.reload()">Restart Quiz</button>
+                    `;
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
